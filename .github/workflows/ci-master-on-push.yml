@@ -1,0 +1,71 @@
+name: CI+CD
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+
+    - name: Install deps
+      run: |
+        cd parsers-services
+        yarn --ignore-engines
+
+    - name: Build
+      run: |
+        cd parsers-services
+        yarn build
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: js-build
+        path: parsers-services/build
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v1
+        with:
+          name: js-build
+
+      - uses: actions/checkout@v2
+        with:
+          name: 7challenger/infra
+          repository: 7challenger/infra
+          ref: refs/heads/master
+          token: ${{ secrets.ACCESS_TOKEN }}
+
+      - name: Install ansible
+        run:
+          sudo apt install ansible
+
+      - name: Initialize ssh keys
+        run: |
+          mkdir ~/.ssh
+          sudo chmod 755 ~/.ssh
+
+          echo "${{ secrets.KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" >> ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_PUBLIC_KEY }}" >> ~/.ssh/id_rsa.pub
+
+          sudo chmod 600 ~/.ssh/id_rsa
+          sudo chmod 600 ~/.ssh/id_rsa.pub
+
+      - name: Run Ansible playbook
+        run:
+          ansible-playbook ./ansible/deploy-playbook.yml -i ./ansible/inventory.yml

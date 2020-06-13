@@ -1,0 +1,4 @@
+import ParsersGateway from './';
+
+
+ParsersGateway();

@@ -1,0 +1,99 @@
+version: '3.0'
+services:
+  mongodb:
+    image: mongo:4.0.4
+    networks:
+      - parsers
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo_data:/data/db
+
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    networks:
+      - parsers
+    ports:
+      - 5672:5672
+      - 15672:15672
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.8.5
+    networks:
+      - parsers
+    environment:
+      - http.host=0.0.0.0
+      - transport.host=localhost
+      - network.host=0.0.0.0
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      # - HTTP_PROXY=proxy:5566
+      # - HTTPS_PROXY=proxy:5566
+      # - FTP_PROXY=proxy:5566
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+
+  graylog:
+    image: graylog/graylog:3.3
+    networks:
+      - parsers
+    environment:
+      - GRAYLOG_PASSWORD_SECRET=mfyz11sanane22banane
+      - GRAYLOG_ROOT_PASSWORD_SHA2=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
+      - GRAYLOG_HTTP_EXTERNAL_URI=http://0.0.0.0:9000/
+      - GRAYLOG_MONGODB_URI=mongodb://mongodb:27017/graylog
+      - GRAYLOG_ROOT_TIMEZONE=Europe/Moscow
+      # - HTTP_PROXY=proxy:5566
+      # - HTTPS_PROXY=proxy:5566
+      # - FTP_PROXY=proxy:5566
+    depends_on:
+      - mongodb
+      - elasticsearch
+    ports:
+      - 12201:12201
+      - 1514:1514
+      - 9000:9000
+    volumes:
+      - graylog_journal:/usr/share/graylog/data/journal
+
+  parsers:
+    image: parsers:0.0.1
+    # environment:
+      # - HTTP_PROXY=proxy:5566
+      # - HTTPS_PROXY=proxy:5566
+      # - FTP_PROXY=proxy:5566
+    networks:
+      - parsers
+    depends_on:
+      - rabbitmq
+      - mongodb
+    ports:
+      - 3002:3002
+    volumes:
+      - parsers_data
+
+  # proxy:
+  #   image: mattes/rotating-proxy
+  #   networks:
+  #     - parsers
+  #   ports:
+  #     - 4444:4444 # web-ui
+  #     - 5566:5566 # proxy itself
+
+networks:
+  parsers:
+    driver: bridge
+
+volumes:
+  mongo_data:
+    driver: local
+  parsers_data:
+    driver: local
+  es_data:
+    driver: local
+  graylog_journal:
+    driver: local
