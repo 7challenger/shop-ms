@@ -2,3 +2,4 @@ node_modules/
 build/
 Chromium.app/
 template/
+.DS_Store
