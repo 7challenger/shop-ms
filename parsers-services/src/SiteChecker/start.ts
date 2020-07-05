@@ -1,4 +1,0 @@
-import SiteChecker from './';
-
-
-SiteChecker();

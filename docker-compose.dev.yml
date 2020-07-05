@@ -1,0 +1,82 @@
+version: '3.0'
+services:
+  mongodb:
+    image: mongo:4.0.4
+    networks:
+      - mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo_data:/data/db
+
+  traefik:
+    image: traefik:v2.2
+    container_name: traefik
+    networks:
+      - traefik
+    command:
+      - --api.insecure=true
+      - --providers.docker=true
+      - --entrypoints.web.address=:80
+      - --providers.docker.exposedbydefault=false
+    ports:
+      - 80:80
+      - 8080:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: ./Api/Dockerfile
+    networks:
+      - traefik
+      - mongo
+    container_name: api-gateway
+    labels:
+      - traefik.enable=true
+      # https://github.com/containous/traefik/issues/1156#issuecomment-287387666
+      - traefik.docker.network=shop-ms_traefik
+      - traefik.http.routers.api-gateway.entrypoints=web
+      - traefik.http.routers.api-gateway.rule=PathPrefix(`/api`)
+      - traefik.http.services.api-gateway.loadbalancer.server.port=3002
+    ports:
+      - 3002:3002
+
+  site-checker:
+    build:
+      context: .
+      dockerfile: ./SiteChecker/Dockerfile
+    networks:
+      - traefik
+    container_name: site-checker
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik
+      - traefik.http.routers.site-checker.entrypoints=web
+      - traefik.http.routers.site-checker.rule=PathPrefix(`/site-checker`)
+      - traefik.http.services.site-checker.loadbalancer.server.port=3003
+    ports:
+      - 3003:3003
+
+  # proxy:
+  #   image: mattes/rotating-proxy
+  #   networks:
+  #     - parsers
+  #   ports:
+  #     - 4444:4444 # web-ui
+  #     - 5566:5566 # proxy itself
+
+networks:
+  mongo:
+    driver: bridge
+
+  traefik:
+    driver: bridge
+
+  # proxy:
+  #   driver: bridge
+
+volumes:
+  mongo_data:
+    driver: local

@@ -11,26 +11,19 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Use Node.js
-      uses: actions/setup-node@v1
-      with:
-        node-version: '12.x'
-
-    - name: Install deps
+    - name: Initilize docker
       run: |
-        cd parsers-services
-        yarn --ignore-engines
+        docker login repo.treescale.com -u ${{ secrets.DOCKER_REG_USER }} -p ${{ secrets.DOCKER_REG_PASSWORD }}
 
-    - name: Build
+    - name: Update docker images
       run: |
-        cd parsers-services
-        yarn build
+        yarn build:docker-api-gateway
+        yarn build:docker-site-checker
 
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v1
-      with:
-        name: js-build
-        path: parsers-services/build
+    - name: Publish docker images
+      run: |
+        yarn publish:docker-api-gateway
+        yarn publish:docker-site-checker
 
   deploy:
     runs-on: ubuntu-latest

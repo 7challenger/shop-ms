@@ -1,0 +1,10 @@
+{
+  "name": "Parsers",
+  "version": "0.0.1",
+  "main": "index.js",
+  "private": true,
+  "dependencies": {
+    "@types/cheerio": "^0.22.21",
+    "@types/puppeteer": "^3.0.1"
+  }
+}

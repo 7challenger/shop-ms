@@ -1,0 +1,5 @@
+{
+  "name": "@7challenger/BuildTools",
+  "version": "0.0.1",
+  "main": "src/webpack.config.js"
+}
