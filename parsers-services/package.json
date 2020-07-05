@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "author": "kurasixo",
   "license": "MIT",
+  "private": true,
   "scripts": {
     "build": "rm -rf ./build && webpack --config webpack.config.js --progress",
     "start:api": "node ./build/Api.js",
