@@ -11,21 +11,3 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    # - name: Get changed files dirs
-    # - name: Update docker images of changed files dirs
-    # - name: Publish docker images
-
-    - name: Initilize docker
-      run: |
-        docker login repo.treescale.com -u ${{ secrets.DOCKER_REG_USER }} -p ${{ secrets.DOCKER_REG_PASSWORD }}
-
-    - name: Update docker images
-      run: |
-        yarn build:docker-api-gateway
-        yarn build:docker-site-checker
-
-    - name: Publish docker images
-      run: |
-        yarn publish:docker-api-gateway
-        yarn publish:docker-site-checker
-

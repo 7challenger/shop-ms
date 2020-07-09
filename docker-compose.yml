@@ -7,7 +7,16 @@ services:
     ports:
       - 27017:27017
     volumes:
-      - mongo_data:/data/db
+      - mongo_data:/data/mongodb
+
+  postgres:
+    image: postgres
+    networks:
+      - postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/data/postgresdb
 
   traefik:
     image: traefik:v2.2
@@ -26,10 +35,14 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
   api-gateway:
-    image: api-gateway:0.0.1
+    build:
+      context: .
+      dockerfile: ./Api/Dockerfile
     networks:
-      - mongo
       - traefik
+      - mongo
+      - postgres
+    container_name: api-gateway
     labels:
       - traefik.enable=true
       # https://github.com/containous/traefik/issues/1156#issuecomment-287387666
@@ -41,9 +54,12 @@ services:
       - 3002:3002
 
   site-checker:
-    image: site-checker:0.0.1
+    build:
+      context: .
+      dockerfile: ./SiteChecker/Dockerfile
     networks:
       - traefik
+    container_name: site-checker
     labels:
       - traefik.enable=true
       - traefik.docker.network=traefik
@@ -52,6 +68,22 @@ services:
       - traefik.http.services.site-checker.loadbalancer.server.port=3003
     ports:
       - 3003:3003
+
+  parser:
+    build:
+      context: .
+      dockerfile: ./Parser/Dockerfile
+    networks:
+      - traefik
+    container_name: parser
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik
+      - traefik.http.routers.parser.entrypoints=web
+      - traefik.http.routers.parser.rule=PathPrefix(`/parser`)
+      - traefik.http.services.parser.loadbalancer.server.port=3004
+    ports:
+      - 3004:3004
 
   # proxy:
   #   image: mattes/rotating-proxy
@@ -65,6 +97,9 @@ networks:
   mongo:
     driver: bridge
 
+  postgres:
+    driver: bridge
+
   traefik:
     driver: bridge
 
@@ -73,4 +108,7 @@ networks:
 
 volumes:
   mongo_data:
+    driver: local
+
+  postgres_data:
     driver: local

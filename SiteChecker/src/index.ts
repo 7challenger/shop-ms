@@ -1,14 +1,53 @@
 import helmet from 'helmet';
 import express from 'express';
+import cheerio from 'cheerio';
+import bodyParser from 'body-parser';
+
+import updateSelectors from './utils/updateSelectors';
+import initBrowserSession from './utils/initBrowserSession';
+import getHasMarkupChanged from './utils/getHasMarkupChanged';
+import { flowedNormalize } from './utils/normalizeHtml';
 
 const port = 3003;
 const app = express();
 
 app.use(helmet());
+app.use(bodyParser.json())
 
-app.all('/site-checker/sss', (req, res) => {
-  console.log(req.body);
-  res.send('ok');
+type SelectorItem = {
+  selector: string,
+  cssClass: string,
+
+  dataTest?: string,
+};
+
+type Selectors = { item: SelectorItem }
+type Site = { siteUrl: string, prevSiteState: string, selectors: Selectors }
+
+const getRequestData = (req: express.Request): Site => {
+  const { siteUrl, prevSiteState, selectors } = req.body;
+
+  return { siteUrl, prevSiteState, selectors };
+}
+
+app.post('/site-checker', async (req, res) => {
+  let { selectors } = getRequestData(req);
+  const { siteUrl, prevSiteState } = getRequestData(req);
+
+  const { page, browser } = await initBrowserSession(siteUrl);
+
+  const currentSiteState = await page.content();
+  const currentPageSelector = flowedNormalize(cheerio.load(currentSiteState));
+  const prevPageSelector = flowedNormalize(cheerio.load(prevSiteState));
+
+  const hasMarkupChanged = await getHasMarkupChanged(currentPageSelector, prevPageSelector);
+
+  if (hasMarkupChanged) {
+    selectors = await updateSelectors(currentPageSelector, prevPageSelector, selectors);
+  }
+
+  await browser.close();
+  res.send({ selectors, siteUrl });
 });
 
 app.use((req, res, next) => {

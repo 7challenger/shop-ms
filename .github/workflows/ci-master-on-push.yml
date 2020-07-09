@@ -11,19 +11,28 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Test
+      run:
+        yarn test
+
+    - name: Lint
+      run:
+        yarn lint
+
     - name: Initilize docker
       run: |
-        docker login repo.treescale.com -u ${{ secrets.DOCKER_REG_USER }} -p ${{ secrets.DOCKER_REG_PASSWORD }}
-
+        echo ${{ secrets.DOCKER_REG_PASSWORD }} | docker login repo.treescale.com -u ${{ secrets.DOCKER_REG_USER }} --password-stdin
     - name: Update docker images
       run: |
         yarn build:docker-api-gateway
         yarn build:docker-site-checker
+        yarn build:docker-parser
 
     - name: Publish docker images
       run: |
         yarn publish:docker-api-gateway
         yarn publish:docker-site-checker
+        yarn publish:docker-parser
 
   deploy:
     runs-on: ubuntu-latest
@@ -47,11 +56,6 @@ jobs:
           ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
           ssh_known_hosts: ${{ secrets.KNOWN_HOSTS }}
 
-      - name: Download artifacts
-        uses: actions/download-artifact@v1
-        with:
-          name: js-build
-
       - name: Run Ansible playbook
         run:
-          ansible-playbook ./ansible/deploy-playbook.yml -i ./ansible/inventory.yml
+          ansible-playbook ./ansible/chabox/deploy-playbook.yml -e "dockerUser=${{ secrets.DOCKER_REG_USER }} dockerPassword=${{ secrets.DOCKER_REG_PASSWORD }}" -i ./ansible/chabox/inventory.yml

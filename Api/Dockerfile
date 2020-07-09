@@ -10,8 +10,6 @@ COPY ./Api ./Api
 COPY ./Utils ./Utils
 COPY ./BuildTools ./BuildTools
 
-COPY tsconfig.json .
-
 # Temp workaround till private packaging will be bought
 RUN cd ./Utils && yarn --ignore-engines && yarn link
 RUN cd ./Api && yarn link @7challenger/Utils
@@ -21,6 +19,11 @@ RUN cd ./Api && yarn link @7challenger/BuildTools
 
 RUN cd ./Api && yarn --ignore-engines && yarn build
 
+RUN rm -rf ./Utils
+RUN rm -rf ./BuildTools
+RUN mv ./Api/build/main.js .
+RUN rm -rf ./Api
+
 EXPOSE 3002
 
-CMD [ "node", "./Api/build/main.js" ]
+CMD [ "node", "./main.js" ]
