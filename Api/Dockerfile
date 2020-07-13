@@ -10,14 +10,7 @@ ENV NODE_HOST=$host
 RUN set -x \
     && apk update \
     && apk upgrade \
-    && apk add --no-cache \
-    make \
-    gcc \
-    g++ \
-    libpq \
-    python3 \
-    postgresql \
-    postgresql-contrib
+    && apk add --no-cache make python gcc postgresql-dev g++
 
 RUN yarn global add webpack webpack-cli
 
