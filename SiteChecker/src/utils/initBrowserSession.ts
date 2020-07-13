@@ -14,7 +14,7 @@ const initBrowserSession = async (url: string): Promise<BrowserSession> => {
   });
 
   const [page] = await browser.pages();
-  await page.goto(url, { waitUntil: 'domcontentloaded' });
+  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 0 });
 
   return { page, browser };
 }

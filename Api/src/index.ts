@@ -1,5 +1,7 @@
+import pg from 'pg';
 import helmet from 'helmet';
-import express, { response } from 'express';
+import express from 'express';
+
 import fetch from 'node-fetch';
 
 const port = 3002;
@@ -118,36 +120,57 @@ const getSites = async () => {
 };
 
 const getMSHosts = async () => {
+  const host = process.env.NODE_HOST;
+  // host should start with http(s)://hostname
   // mock from infra-admin-db || from traefik api
   // curl http://chabox.ru:8080/api/http/routers
   // fitler name by @docker
   // process
+
+  // prod -> chabox
+  // dev-compose  -> compose network_name
   const MSHosts = {
-    parser: 'http://localhost:3004/parser',
-    process: 'http://localhost:3003/site-checker',
-    normalize: 'http://chabox.ru/normalize',
+    parser: `${host}/parser`,
+    process: `${host}/site-checker`,
+    normalize: `${host}/normalize`,
   };
 
   return MSHosts;
 };
 
-// move to ws
-app.post('/api/start', async (_, res) => {
-  const sites = await getSites();
-  const MSHosts = await getMSHosts();
-  const promiseArr = Object.values(sites).map(({ siteUrl, prevSiteState, selectors }) => {
-    const body = JSON.stringify({ siteUrl, prevSiteState, selectors });
+const fetchPostReqPipe = (valuesToMap: any[], hostToPost: string) => {
+  return Promise.all(valuesToMap.map((valueFromArray) => {
+    const body = JSON.stringify(valueFromArray);
 
-    return fetch(MSHosts.process, { method: 'POST', body, headers: { 'Content-Type': 'application/json' } })
-      .then(response => response.json())
-      .then(json => {
-        const body = JSON.stringify(json);
-        return fetch(MSHosts.parser, { method: 'POST', body, headers: { 'Content-Type': 'application/json' } })
-      })
+    return fetch(hostToPost, { method: 'POST', body, headers: { 'Content-Type': 'application/json' } })
       .then(response => response.json());
+  }));
+};
+
+const saveParsedData = async (data: SelectorItem[]) => {
+  const client = new pg.Client({
+    user: 'challenger',
+    host: 'localhost',
+    database: 'challenger',
+    password: 'challenger',
+    port: 5432,
   });
 
-  const data = await Promise.all(promiseArr);
+  await client.connect();
+  console.log(await client.query('SELECT * FROM challenger'))
+  // connect to postgre
+  // save data
+  // disconnect?
+};
+
+// move to ws
+app.post('/api/start-parsing', async (_, res) => {
+  const sites = await getSites();
+  const MSHosts = await getMSHosts();
+
+  const processedData = await fetchPostReqPipe(Object.values(sites), MSHosts.process);
+  const data = await fetchPostReqPipe(processedData, MSHosts.parser);
+  saveParsedData(data);
 
   res.send(data);
 });

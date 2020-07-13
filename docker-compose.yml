@@ -17,6 +17,11 @@ services:
       - 5432:5432
     volumes:
       - postgres_data:/data/postgresdb
+    environment:
+      POSTGRES_DB: challenger
+      POSTGRES_PASSWORD: challenger
+      POSTGRES_USER: challenger
+      PGDATA: /data/postgresdb/pgdata
 
   traefik:
     image: traefik:v2.2
@@ -38,6 +43,8 @@ services:
     build:
       context: .
       dockerfile: ./Api/Dockerfile
+      args:
+        host: http://traefik
     networks:
       - traefik
       - mongo

@@ -7,7 +7,7 @@
     "test": "echo test",
     "lint": "echo lint",
 
-    "build:docker-api-gateway": "docker build -t api-gateway:0.0.1 -f ./Api/Dockerfile .",
+    "build:docker-api-gateway": "docker build --build-arg host=http://chabox.ru -t api-gateway:0.0.1 -f ./Api/Dockerfile .",
     "build:docker-site-checker": "docker build -t site-checker:0.0.1 -f ./SiteChecker/Dockerfile .",
     "build:docker-parser": "docker build -t parser:0.0.1 -f ./Parser/Dockerfile .",
 

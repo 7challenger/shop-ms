@@ -34,20 +34,28 @@ app.post('/site-checker', async (req, res) => {
   let { selectors } = getRequestData(req);
   const { siteUrl, prevSiteState } = getRequestData(req);
 
+  console.log('Request to: /site-checker, request data:', getRequestData(req));
+
   const { page, browser } = await initBrowserSession(siteUrl);
 
-  const currentSiteState = await page.content();
-  const currentPageSelector = flowedNormalize(cheerio.load(currentSiteState));
-  const prevPageSelector = flowedNormalize(cheerio.load(prevSiteState));
+  try {
+    const currentSiteState = await page.content();
+    const currentPageSelector = flowedNormalize(cheerio.load(currentSiteState));
+    const prevPageSelector = flowedNormalize(cheerio.load(prevSiteState));
 
-  const hasMarkupChanged = await getHasMarkupChanged(currentPageSelector, prevPageSelector);
+    const hasMarkupChanged = await getHasMarkupChanged(currentPageSelector, prevPageSelector);
 
-  if (hasMarkupChanged) {
-    selectors = await updateSelectors(currentPageSelector, prevPageSelector, selectors);
+    if (hasMarkupChanged) {
+      selectors = await updateSelectors(currentPageSelector, prevPageSelector, selectors);
+    }
+
+    await browser.close();
+    res.send({ selectors, siteUrl });
+  } catch(e) {
+    await browser.close();
+  } finally {
+    await browser.close();
   }
-
-  await browser.close();
-  res.send({ selectors, siteUrl });
 });
 
 app.use((req, res, next) => {

@@ -14,15 +14,6 @@ module.exports = {
 
   devtool: 'eval-source-map',
 
-  // entry: getEntryPoint(),
-
-  // output: {
-  //   filename: '[name].js',
-  //   path: path.resolve(__dirname, './build'),
-  // },
-
-  // externals: [nodeExternals()],
-
   module: {
     rules: [
       {

@@ -1,8 +1,23 @@
 FROM node:12-alpine
 
+ARG host
 ARG APP_DIR=app
 RUN mkdir -p ${APP_DIR}
 WORKDIR ${APP_DIR}
+
+ENV NODE_HOST=$host
+
+RUN set -x \
+    && apk update \
+    && apk upgrade \
+    && apk add --no-cache \
+    make \
+    gcc \
+    g++ \
+    libpq \
+    python3 \
+    postgresql \
+    postgresql-contrib
 
 RUN yarn global add webpack webpack-cli
 

@@ -36,7 +36,7 @@ const initBrowserSession = async (url: string): Promise<BrowserSession> => {
     width: 1200,
     height: 800
   });
-  await page.goto(url, { waitUntil: 'networkidle2' });
+  await page.goto(url, { waitUntil: 'networkidle2', timeout: 0 });
   await autoScroll(page);
 
   return { page, browser };
@@ -126,7 +126,7 @@ const parse = async (page: puppeteer.Page, selectors: Selectors, siteUrl: string
 app.post('/parser', async (req, res) => {
   const { siteUrl, selectors } = getRequestData(req);
   const { page, browser } = await initBrowserSession(siteUrl);
-
+  console.log('Request to: /parser, request data:', getRequestData(req));
   try {
     const items: any[] = await parse(page, selectors, siteUrl);
 
