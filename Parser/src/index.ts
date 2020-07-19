@@ -2,18 +2,18 @@ import express from 'express';
 import helmet from 'helmet';
 import bodyParser from 'body-parser';
 
+import puppeteer from 'puppeteer-core';
+
 const port = 3004;
 const app = express();
 
 app.use(helmet());
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 
 const getRequestData = (req: express.Request) => {
   const { siteUrl, selectors } = req.body;
   return { siteUrl, selectors };
-}
-
-import puppeteer from 'puppeteer-core';
+};
 
 type BrowserSession = { page: puppeteer.Page, browser: puppeteer.Browser }
 
@@ -40,7 +40,7 @@ const initBrowserSession = async (url: string): Promise<BrowserSession> => {
   await autoScroll(page);
 
   return { page, browser };
-}
+};
 
 type Info = {
   name: string,
@@ -85,17 +85,18 @@ const autoScroll = async (page: puppeteer.Page) => {
       resolve();
     });
   })()`);
-}
+};
 
 const parseElementBySelector = async (
   page: puppeteer.Page,
   selfElement: puppeteer.ElementHandle,
   selector: string,
 
-  valueToTake: string = 'textContent',
+  valueToTake = 'textContent',
 ) => {
   const element = await selfElement.$(selector);
-  const value = await page.evaluate((element, valueToTake) => element && element[valueToTake], element, valueToTake);
+  // eslint-disable-next-line
+  const value = await page.evaluate((element: any, valueToTake: string) => element && element[valueToTake], element, valueToTake);
 
   return value;
 };
@@ -124,25 +125,31 @@ const parse = async (page: puppeteer.Page, selectors: Selectors, siteUrl: string
 };
 
 app.post('/parser', async (req, res) => {
-  const { siteUrl, selectors } = getRequestData(req);
-  const { page, browser } = await initBrowserSession(siteUrl);
-  console.log('Request to: /parser, request data:', getRequestData(req));
+  let outerBrowser: puppeteer.Browser | null = null;
+
   try {
+    console.log('Request to: /parser, request data:', getRequestData(req));
+    const { siteUrl, selectors } = getRequestData(req);
+    const { page, browser } = await initBrowserSession(siteUrl);
+    outerBrowser = browser;
+
+
     const items: any[] = await parse(page, selectors, siteUrl);
 
     await page.close();
     await browser.close();
 
-    res.send({ items });
+    res.json(items);
   } catch(e) {
-    await browser.close();
+    await outerBrowser?.close();
+    res.status(400).json({ error: e });
   } finally {
-    await browser.close();
+    await outerBrowser?.close();
   }
 });
 
-app.use((req, res, next) => {
-  res.send('404 from parser');
+app.use((req, res) => {
+  res.status(404).json({ error: '404 from parser' });
 });
 
 app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`));

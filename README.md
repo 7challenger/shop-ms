@@ -1,12 +1,12 @@
-# Stack
+## Stack
 - Frontend: ts + vue?
 - Parser: ts + puppeter + faas? + redis
 - DB: postgres for data + mongo for sites and markup
 
 ---------------------------------------------------
 
-# Микросервисный подход
-## Первый вариант
+## Микросервисный подход
+### Первый вариант
 Пусть Data - стартовый набор данных (массив сайтов)
 Есть несколько сервисов:
 - A - забирает Data из базы и обрабатывает и кладет их в базу (take - process - put)
@@ -14,7 +14,7 @@
 
 ***composedApp = Data -> A | B -> Proc***
 
-## Второй вариант
+### Второй вариант
 Пусть Data - стартовый набор данных (массив сайтов)
 Есть несколько сервисов:
 - A - забирает Data из базы и обрабатывает и нормализует и кладет их в базу (take - process - normalize - put)
@@ -23,7 +23,7 @@
 
 ---------------------------------------------------
 
-# FaaS подход
+## FaaS подход
 Пусть Data - стартовый набор данных (массив сайтов)
 Есть несколько функций:
 ```
@@ -46,5 +46,16 @@ Steps:
 
 ---------------------------------------------------
 
-# https://github.com/nicolaspearson/node.api.gateway -> Пример nats + hemera для микросервисов
+## Examples
+- https://github.com/nicolaspearson/node.api.gateway -> Пример nats + hemera для микросервисов
 
+## Dependencies:
+- docker-compose
+
+## How to run:
+- yarn start
+
+## DefaultPortsMapping
+- 3002 - api
+- 3003 - sites checker
+- 3004 - parser

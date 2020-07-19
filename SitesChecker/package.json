@@ -1,6 +1,7 @@
 {
-  "name": "SiteChecker",
+  "name": "SitesChecker",
   "version": "0.0.1",
+  "license": "All rights reserved to 7challenger",
   "main": "build/index.js",
   "private": true,
   "scripts": {

@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "challenger",
+    "password": "challenger",
+    "database": "challenger",
+    "host": "http://0.0.0.0:5432",
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "challenger",
+    "password": "challenger",
+    "database": "challenger",
+    "host": "localhost",
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "challenger",
+    "password": "challenger",
+    "database": "challenger",
+    "host": "localhost",
+    "dialect": "postgres"
+  }
+}

@@ -1,5 +1,6 @@
 {
   "name": "@7challenger/BuildTools",
   "version": "0.0.1",
+  "license": "All rights reserved to 7challenger",
   "main": "src/webpack.config.js"
 }

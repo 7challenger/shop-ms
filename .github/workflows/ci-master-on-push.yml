@@ -25,13 +25,13 @@ jobs:
     - name: Update docker images
       run: |
         yarn build:docker-api-gateway
-        yarn build:docker-site-checker
+        yarn build:docker-sites-checker
         yarn build:docker-parser
 
     - name: Publish docker images
       run: |
         yarn publish:docker-api-gateway
-        yarn publish:docker-site-checker
+        yarn publish:docker-sites-checker
         yarn publish:docker-parser
 
   deploy:

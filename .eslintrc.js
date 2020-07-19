@@ -3,8 +3,10 @@ module.exports = {
     browser: false,
     es2020: true
   },
+
   globals: {
     '__dirname': true,
+    '__filename': true,
     'module': true,
   },
 
@@ -37,6 +39,15 @@ module.exports = {
     'arrow-body-style': 0,
     // 'react/jsx-props-no-spreading': 0,
     'operator-linebreak': 0,
+    '@typescript-eslint/no-unused-vars': 2,
+    '@typescript-eslint/no-floating-promises': 0,
+    '@typescript-eslint/no-unsafe-assignment': 0,
+    '@typescript-eslint/no-unsafe-return': 0,
+    '@typescript-eslint/no-explicit-any': 0,
+    '@typescript-eslint/no-unsafe-call': 0,
+    '@typescript-eslint/no-empty-interface': 0,
+    '@typescript-eslint/ban-ts-comment': 0,
+    '@typescript-eslint/no-empty-function': 0,
     // 'react/jsx-filename-extension': 0,
     // 'jsx-a11y/control-has-associated-label': 0,
 
@@ -47,7 +58,7 @@ module.exports = {
   overrides: [{
     'files': ['*actions.ts'],
     'rules': {
-      '@typescript-eslint/explicit-module-boundary-types': 'off'
+      '@typescript-eslint/explicit-module-boundary-types': 0,
     }
   }]
 };

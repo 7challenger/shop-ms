@@ -1,0 +1,21 @@
+{
+  "name": "ConfigProvider",
+  "version": "0.0.1",
+  "main": "index.js",
+  "author": "kurasixo",
+  "license": "All rights reserved to 7challenger",
+  "private": true,
+  "scripts": {
+    "start": "pm2 start ./build/main.js --watch=true",
+    "build": "rm -rf ./build && webpack --config webpack.config.js",
+    "build:watch": "webpack --config webpack.config.js --watch"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "helmet": "^3.23.3"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.7",
+    "@types/helmet": "^0.0.47"
+  }
+}

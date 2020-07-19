@@ -18,20 +18,20 @@ RUN set -x \
 
 RUN yarn global add webpack webpack-cli
 
-COPY ./SiteChecker ./SiteChecker
-COPY ./Utils ./Utils
+COPY ./SitesChecker ./SitesChecker
+# COPY ./Utils ./Utils
 COPY ./BuildTools ./BuildTools
 
 # Temp workaround till private packaging will be bought
-RUN cd ./Utils && yarn --ignore-engines && yarn link
-RUN cd ./SiteChecker && yarn link @7challenger/Utils
+# RUN cd ./Utils && yarn --ignore-engines && yarn link
+# RUN cd ./SitesChecker && yarn link @7challenger/Utils
 
 # Temp workaround till private packaging will be bought
 RUN cd ./BuildTools && yarn --ignore-engines && yarn link
-RUN cd ./SiteChecker && yarn link @7challenger/BuildTools
+RUN cd ./SitesChecker && yarn link @7challenger/BuildTools
 
-RUN cd ./SiteChecker && yarn --ignore-engines && yarn build
+RUN cd ./SitesChecker && yarn --ignore-engines && yarn build
 
 EXPOSE 3003
 
-CMD [ "node", "./SiteChecker/build/main.js" ]
+CMD [ "node", "./SitesChecker/build/main.js" ]

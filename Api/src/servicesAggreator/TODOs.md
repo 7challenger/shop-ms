@@ -1,0 +1,5 @@
+- Deal with not promised connections
+- Deal with mqtt and kafka connections
+- Travsersal as generator
+- Deal with all @ts-ignore
+- Each node should have self connectionHandler and self dataAggregator (добавить в поля графа)

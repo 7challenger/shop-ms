@@ -1,5 +1,5 @@
 node_modules/
 build/
-Chromium.app/
-template/
+build_models/
+build_migrations/
 .DS_Store

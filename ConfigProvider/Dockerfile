@@ -1,17 +1,15 @@
 FROM node:12-alpine
 
+ARG host
 ARG APP_DIR=app
 RUN mkdir -p ${APP_DIR}
 WORKDIR ${APP_DIR}
 
-RUN set -x \
-    && apk update \
-    && apk upgrade \
-    && apk add --no-cache make python gcc postgresql-dev g++
+ENV NODE_HOST=${host}
 
 RUN yarn global add webpack webpack-cli
 
-COPY ./Api ./Api
+COPY ./ConfigProvider ./ConfigProvider
 # COPY ./Utils ./Utils
 COPY ./BuildTools ./BuildTools
 
@@ -20,13 +18,13 @@ COPY ./BuildTools ./BuildTools
 # RUN cd ./Api && yarn link @7challenger/Utils
 
 RUN cd ./BuildTools && yarn --ignore-engines && yarn link
-RUN cd ./Api && yarn link @7challenger/BuildTools
+RUN cd ./ConfigProvider && yarn link @7challenger/BuildTools
 
-RUN cd ./Api && yarn --ignore-engines && yarn build
+RUN cd ./ConfigProvider && yarn --ignore-engines && yarn build
 
 # RUN mv ./Api/build/main.js .
 # RUN mv ./Api/entrypoint.sh .
 
-EXPOSE 3002
+EXPOSE 3005
 
-CMD [ "sh", "./Api/entrypoint.sh" ]
+CMD [ "node", "./ConfigProvider/build/main.js" ]

@@ -19,12 +19,12 @@ RUN set -x \
 RUN yarn global add webpack webpack-cli
 
 COPY ./Parser ./Parser
-COPY ./Utils ./Utils
+# COPY ./Utils ./Utils
 COPY ./BuildTools ./BuildTools
 
 # Temp workaround till private packaging will be bought
-RUN cd ./Utils && yarn --ignore-engines && yarn link
-RUN cd ./Parser && yarn link @7challenger/Utils
+# RUN cd ./Utils && yarn --ignore-engines && yarn link
+# RUN cd ./Parser && yarn link @7challenger/Utils
 
 # Temp workaround till private packaging will be bought
 RUN cd ./BuildTools && yarn --ignore-engines && yarn link
