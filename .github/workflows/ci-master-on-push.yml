@@ -24,15 +24,17 @@ jobs:
         echo ${{ secrets.DOCKER_REG_PASSWORD }} | docker login repo.treescale.com -u ${{ secrets.DOCKER_REG_USER }} --password-stdin
     - name: Update docker images
       run: |
-        yarn build:docker-api-gateway
-        yarn build:docker-sites-checker
-        yarn build:docker-parser
+        ./scripts/buildDocker.sh parser 0.0.1 ./Parser/Dockerfile
+        ./scripts/buildDocker.sh api-gateway 0.0.1 ./Api/Dockerfile
+        ./scripts/buildDocker.sh sites-checker 0.0.1 ./SitesChecker/Dockerfile
+        ./scripts/buildDocker.sh config-provider 0.0.1 ./ConfigProvider/Dockerfile
 
     - name: Publish docker images
       run: |
-        yarn publish:docker-api-gateway
-        yarn publish:docker-sites-checker
-        yarn publish:docker-parser
+        ./scripts/publishImage.sh parser 0.0.1
+        ./scripts/publishImage.sh api-gateway 0.0.1
+        ./scripts/publishImage.sh sites-checker 0.0.1
+        ./scripts/publishImage.sh config-provider 0.0.1
 
   deploy:
     runs-on: ubuntu-latest
